@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IP Information Lookup</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    input {
+      margin-right: 10px;
+    }
+    output {
+      display: block;
+      margin-top: 10px;
+    }
+    .json-key {
+      text-decoration: underline;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <label for="ipInput">Enter IP Address:</label>
+  <input type="text" id="ipInput" placeholder="e.g., 31.198.197.5">
+  <button onclick="searchIp()">Search</button>
+
+  <output id="resultOutput"></output>
+
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    async function searchIp() {
+      const ipInput = document.getElementById('ipInput').value;
+
+      if (!ipInput) {
+        alert('Please enter an IP address.');
+        return;
+      }
+
+      const options = {
+        method: 'GET',
+        url: 'https://all-information-about-ip.p.rapidapi.com/',
+        params: {
+          query: ipInput,
+          lang: 'en'
+        },
+        headers: {
+          'X-RapidAPI-Key': '9d0ef7fec0msh18533f2376236d7p165cfdjsnbd16386dfe29',
+          'X-RapidAPI-Host': 'all-information-about-ip.p.rapidapi.com'
+        }
+      };
+
+      try {
+        const response = await axios.request(options);
+        displayResult(response.data);
+      } catch (error) {
+        console.error(error);
+        displayResultError();
+      }
+    }
+
+    function displayResult(data) {
+      const resultOutput = document.getElementById('resultOutput');
+      resultOutput.innerHTML = formatJson(data);
+    }
+
+    function displayResultError() {
+      const resultOutput = document.getElementById('resultOutput');
+      resultOutput.innerHTML = 'Error fetching IP information.';
+    }
+
+    function formatJson(data) {
+      // Recursive function to format JSON and apply styling to keys
+      function recursiveFormat(obj) {
+        return Object.entries(obj)
+          .map(([key, value]) => {
+            const formattedKey = `<span class="json-key">${key}</span>`;
+            if (typeof value === 'object') {
+              const formattedValue = recursiveFormat(value);
+              return `${formattedKey}: ${formattedValue}`;
+            } else {
+              return `${formattedKey}: ${value}`;
+            }
+          })
+          .join('<br>');
+      }
+
+      return recursiveFormat(data);
+    }
+  </script>
+
+</body>
+</html>
